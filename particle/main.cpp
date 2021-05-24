@@ -1,14 +1,19 @@
-#include <math.h>
-
-#include <osg/Geode>
-#include <osg/Group>
-#include <osg/Vec3>
-#include <osg/Geometry>
-#include <osg/ref_ptr>
-#include <osg/Vec2>
-
 #include <osgViewer/Viewer>
 #include <osgViewer/ViewerEventHandlers>
+
+#include <osg/Node>
+#include <osg/Geode>
+#include <osg/Group>
+
+#include <osgDB/ReadFile>
+#include <osgDB/WriteFile>
+
+#include <osgParticle/ExplosionDebrisEffect>
+#include <osgParticle/ExplosionEffect>
+#include <osgParticle/SmokeEffect>
+#include <osgParticle/FireEffect>
+
+#include <osgUtil/Optimizer>
 
 #include <osgGA/StateSetManipulator>
 
@@ -18,49 +23,28 @@
 @param : [in] iHint 每180/iHint度设置一个点，默认18
 @return: 一个球的osg::Geometry*
 */
-osg::Geometry* createSphereGeom(double dRadius = 1., int iHint = 18)
+osg::Group* createExplode()
 {
-	osg::ref_ptr<osg::Geometry>  rpGeom     = new osg::Geometry;
-	osg::ref_ptr<osg::Vec3Array> rpVertexes = new osg::Vec3Array;//顶点数组
-	osg::ref_ptr<osg::Vec3Array> rpNormal   = new osg::Vec3Array;//法线数组
-	osg::ref_ptr<osg::Vec2Array> rpTexCoord = new osg::Vec2Array;//纹理数组
+	osg::ref_ptr<osg::Group> rpExplode = new osg::Group;
+	osg::Vec3 v3Wind(1.f, 0.f, 0.f);//风向
+	osg::Vec3 v3Pos(0.f, 0.f, -10.f);//位置
+	
+	osg::ref_ptr<osgParticle::ExplosionEffect> rpExplosion = new osgParticle::ExplosionEffect(v3Pos, 10.f);//爆炸模拟，10.f为缩放比，默认1.f，不缩放
+	osg::ref_ptr<osgParticle::ExplosionDebrisEffect> rpExplosionDebri = new osgParticle::ExplosionDebrisEffect(v3Pos, 10.f);//碎片模拟
+	osg::ref_ptr<osgParticle::SmokeEffect> rpSmoke = new osgParticle::SmokeEffect(v3Pos, 10.f);//烟模拟
+	osg::ref_ptr<osgParticle::FireEffect> rpFire = new osgParticle::FireEffect(v3Pos, 10.f);//火焰模拟
 
-	for (int i = 0; i <= iHint; i++)//从上到下添加点，有等于号是为了之后贴纹理时可以和图片的点一一对应
-	{
-		for (int j = 0; j <= iHint * 2; j++)//逆时针添加点
-		{
-			osg::Vec3 vec3VertexT(
-				sin(osg::PI*i / iHint)*cos(osg::PI*j / iHint),
-				sin(osg::PI*i / iHint)*sin(osg::PI*j / iHint),
-				cos(osg::PI*i / iHint));//球面坐标公式
-			rpVertexes->push_back(vec3VertexT * dRadius);//添加顶点
-			rpNormal->push_back(vec3VertexT);//添加法线
-			rpTexCoord->push_back(osg::Vec2(double(j) / 2.0 / iHint
-				, 1 - double(i) / iHint));//添加纹理坐标
-		}
-	}
+	rpExplosion->setWind(v3Wind);//设置风向
+	rpExplosionDebri->setWind(v3Wind);
+	rpSmoke->setWind(v3Wind);
+	rpFire->setWind(v3Wind);
 
-	osg::ref_ptr<osg::Vec4Array> rpColors = new osg::Vec4Array;
-	rpColors->push_back(osg::Vec4(1.0, 1.0, 1.0, 1.0));
+	rpExplode->addChild(rpExplosion);
+	rpExplode->addChild(rpExplosionDebri);
+	rpExplode->addChild(rpSmoke);
+	rpExplode->addChild(rpFire);
 
-	rpGeom->setVertexArray(rpVertexes);
-	rpGeom->setNormalArray(rpNormal);
-	rpGeom->setNormalBinding(osg::Geometry::BIND_PER_VERTEX);
-	rpGeom->setColorArray(rpColors);
-	rpGeom->setColorBinding(osg::Geometry::BIND_OVERALL);
-	rpGeom->setTexCoordArray(0, rpTexCoord);
-
-	//添加图元
-	osg::ref_ptr<osg::DrawElementsUInt> rpFace = new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLE_STRIP);
-	for (int i = 0; i < iHint; i++) {
-		for (int j = 0; j <= iHint * 2; j++) {
-			rpFace->push_back(i*(iHint * 2 + 1) + j);
-			rpFace->push_back((i + 1)*(iHint * 2 + 1) + j);
-		}
-	}
-	rpGeom->addPrimitiveSet(rpFace);
-
-	return rpGeom.release();
+	return rpExplode.release();
 }
 
 int main(int argc, char** argv)
@@ -68,15 +52,16 @@ int main(int argc, char** argv)
 	osg::ref_ptr<osgViewer::Viewer> rpViewer = new osgViewer::Viewer();
 	osg::ref_ptr<osg::Group> rpRoot = new osg::Group();
 
-	osg::ref_ptr<osg::Geode> rpGeode = new osg::Geode;
-	rpGeode->addChild(createSphereGeom(1., 45));
+	rpRoot->addChild(createExplode());
 
-	rpRoot->addChild(rpGeode);
+	osgUtil::Optimizer optimizer;
+	optimizer.optimize(rpRoot);
+
+	rpViewer->addEventHandler(new osgGA::StateSetManipulator(rpViewer->getCamera()->getOrCreateStateSet()));//添加w事件处理(需要和Alt键一起按)
+	rpViewer->addEventHandler(new osgViewer::StatsHandler);//添加s事件处理(需要和Alt键一起按)
+
 	rpViewer->setSceneData(rpRoot);
-	//下面两行是添加osg默认s和w键盘事件的处理(需要和Alt键一起按)
-	rpViewer->addEventHandler(new osgGA::StateSetManipulator(rpViewer->getCamera()->getOrCreateStateSet()));//添加w事件处理
-	rpViewer->addEventHandler(new osgViewer::StatsHandler);//添加s事件处理
-
+	rpViewer->realize();
 	rpViewer->run();
 	return 0;
 }
