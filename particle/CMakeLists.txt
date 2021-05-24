@@ -5,12 +5,13 @@ include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 SET(APPLICATION_DIR ${CMAKE_SOURCE_DIR}/particle)
 
-file(GLOB SRC ${APPLICATION_DIR}/*.*)
-SOURCE_GROUP(Src FILES ${SRC})
+file(GLOB SOURCES ${APPLICATION_DIR}/*.cpp)
+file(GLOB HEADERS ${APPLICATION_DIR}/*.h)
 
 add_executable(
 	${OUT_NAME}
-	${SRC}
+	${HEADERS}
+	${SOURCES}
 	)
 	
 #说明1.此处添加依赖库

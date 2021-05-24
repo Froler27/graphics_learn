@@ -6,6 +6,9 @@
 #include <osg/Geometry>
 #include <osg/ref_ptr>
 #include <osg/Vec2>
+#include <osg/Texture2D>
+
+#include <osgDB/ReadFile>
 
 #include <osgViewer/Viewer>
 #include <osgViewer/ViewerEventHandlers>
@@ -63,6 +66,26 @@ osg::Geometry* createSphereGeom(double dRadius = 1., int iHint = 18)
 	return rpGeom.release();
 }
 
+/**
+@brief : 给球贴纹理
+@param : [in/out] pNode 球的节点
+@return: 
+*/
+void setTex(osg::Node* pNode)
+{
+	osg::ref_ptr<osg::Image> rpImage = osgDB::readImageFile("../star/moon.jpg");
+	osg::ref_ptr<osg::Texture2D> rpTexture = new osg::Texture2D();
+
+	rpTexture->setImage(rpImage);
+	rpTexture->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);//设置S方向的环绕模式
+	rpTexture->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);//设置R方向的环绕模式
+	//rpTextureT->setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR_MIPMAP_NEAREST);
+	//rpTextureT->setFilter(osg::Texture::MAG_FILTER, osg::Texture::LINEAR);
+
+	osg::ref_ptr<osg::StateSet> pState = pNode->getOrCreateStateSet();
+	pState->setTextureAttributeAndModes(0, rpTexture, osg::StateAttribute::ON);
+}
+
 int main(int argc, char** argv)
 {
 	osg::ref_ptr<osgViewer::Viewer> rpViewer = new osgViewer::Viewer();
@@ -70,10 +93,11 @@ int main(int argc, char** argv)
 
 	osg::ref_ptr<osg::Geode> rpGeode = new osg::Geode;
 	rpGeode->addChild(createSphereGeom(1., 45));
+	//setTex(rpGeode);//在球上贴纹理
 
 	rpRoot->addChild(rpGeode);
 	rpViewer->setSceneData(rpRoot);
-	//下面两行是添加osg默认s和w键盘事件的处理(需要和Alt键一起按)
+
 	rpViewer->addEventHandler(new osgGA::StateSetManipulator(rpViewer->getCamera()->getOrCreateStateSet()));//添加w事件处理
 	rpViewer->addEventHandler(new osgViewer::StatsHandler);//添加s事件处理
 
