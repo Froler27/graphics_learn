@@ -107,12 +107,12 @@ int main(int argc, char** argv)
 	glDeleteShader(fragmentShader);
 
 	// set up vertex data (and buffer(s)) and configure vertex attributes
+	//float vertices[] = {
+	//	-0.5f, -0.5f, 0.0f,
+	//	0.5f, -0.5f, 0.0f,
+	//	0.0f,  0.5f, 0.0f
+	//};
 	float vertices[] = {
-		-0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		0.0f,  0.5f, 0.0f
-	};
-	/*float vertices[] = {
 		0.5f,  0.5f, 0.0f,  // top right
 		0.5f, -0.5f, 0.0f,  // bottom right
 		-0.5f, -0.5f, 0.0f,  // bottom left
@@ -121,7 +121,7 @@ int main(int argc, char** argv)
 	unsigned int indices[] = {  // note that we start from 0!
 		0, 1, 3,  // first Triangle
 		1, 2, 3   // second Triangle
-	};*/
+	};
 
 	unsigned int VAO;
 	glGenVertexArrays(1, &VAO);
@@ -141,6 +141,12 @@ int main(int argc, char** argv)
 	//	GL_DYNAMIC_DRAW：数据会被改变很多。
 	//	GL_STREAM_DRAW ：数据每次绘制时都会改变。
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	unsigned int EBO;
+	glGenBuffers(1, &EBO);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	//第一个参数指定我们要配置的顶点属性
 	//  还记得我们在顶点着色器中使用layout(location = 0)定义了position顶点属性
@@ -164,14 +170,6 @@ int main(int argc, char** argv)
 	//以顶点属性位置值作为参数，启用顶点属性；顶点属性默认是禁用的
 	glEnableVertexAttribArray(0);
 
-	
-
-	/*unsigned int EBO;
-	glGenBuffers(1, &EBO);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
 
 	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -181,7 +179,7 @@ int main(int argc, char** argv)
 
 	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
 	// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-	glBindVertexArray(0);*/
+	glBindVertexArray(0);
 
 
 	// uncomment this call to draw in wireframe polygons.
@@ -201,9 +199,11 @@ int main(int argc, char** argv)
 		//激活着色器程序程序
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);//采用线框模式
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		// glBindVertexArray(0); // no need to unbind it every time 
+		
 
 		//检查有没有触发什么事件（比如键盘输入、鼠标移动等）
 		//更新窗口状态，并调用对应的回调函数（可以通过回调方法手动设置）
