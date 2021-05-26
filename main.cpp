@@ -93,7 +93,7 @@ int main(int argc, char** argv)
 
 	osg::ref_ptr<osg::Geode> rpGeode = new osg::Geode;
 	rpGeode->addChild(createSphereGeom(1., 45));
-	//setTex(rpGeode);//在球上贴纹理
+	setTex(rpGeode);//在球上贴纹理
 
 	rpRoot->addChild(rpGeode);
 	rpViewer->setSceneData(rpRoot);

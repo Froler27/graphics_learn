@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.10.0)
 SET_PROPERTY( GLOBAL PROPERTY USE_FOLDERS ON )
 
 # 定义工程名称
-project(Test)
+project(Graphics)
 
 find_package(OpenSceneGraph  REQUIRED 
 	osg 
@@ -46,7 +46,7 @@ target_link_libraries(
 ) 
 
 message("${OSG_LIBRARY}")
-message("${OPENSCENEGRAPH_LIBRARIES}")
+message("${GLFW_LIBRARIES}")
 
 #添加子项目
 MACRO(SUBDIRLIST result curdir)
