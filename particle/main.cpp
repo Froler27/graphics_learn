@@ -21,11 +21,11 @@ int main(int argc, char** argv)
 	osg::ref_ptr<osgViewer::Viewer> rpViewer = new osgViewer::Viewer();
 	osg::ref_ptr<osg::Group> rpRoot = new osg::Group();
 
-	//rpRoot->addChild(new CExplosionGroup());
+	rpRoot->addChild(new CExplosionGroup());
 	//rpRoot->addChild(new CParticleGroup1());
 	//rpRoot->addChild(new CParticleGroup1(1));
 
-	osg::Group* pGroup = new osg::Group;
+	/*osg::Group* pGroup = new osg::Group;
 	CParticleGroup1* pFire = new CParticleGroup1(2);
 	pGroup->addChild(pFire);
 	pGroup->addChild(osgDB::readNodeFile("cessna.osg"));
@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 
 	CMoveFly* pMoveFly = new CMoveFly;
 	pTrans->setUpdateCallback(pMoveFly);
-	rpViewer->addEventHandler(new CFirePosCallback(pTrans, pFire));
+	rpViewer->addEventHandler(new CFirePosCallback(pTrans, pFire));*/
 	
 
 	osgUtil::Optimizer optimizer;
