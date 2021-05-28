@@ -45,8 +45,9 @@ target_link_libraries(
 	${OPENSCENEGRAPH_LIBRARIES} 
 ) 
 
+
 message("${OSG_LIBRARY}")
-message("${GLFW_LIBRARIES}")
+message("${SHADERS}")
 
 #添加子项目
 MACRO(SUBDIRLIST result curdir)
