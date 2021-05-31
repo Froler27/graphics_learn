@@ -6,6 +6,10 @@
 
 #include <stb_image.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "Shader.h"
 
 
@@ -155,7 +159,13 @@ int main(int argc, char** argv)
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 
+		glm::mat4 transform = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+		transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+		transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+
 		ourShader.use();//激活着色器程序程序
+		unsigned int transformLoc = glGetUniformLocation(ourShader.getProgramID(), "transform");
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
 
 		//float timeValue = glfwGetTime();
 		//float greenValue = sin(timeValue) / 2.0f + 0.5f;

@@ -13,6 +13,7 @@ include_directories(
     ${GLFW_INCLUDE_DIR}
 	${GLAD_INCLUDE_DIR}
 	${CMAKE_SOURCE_DIR}/common
+	${CMAKE_SOURCE_DIR}/include
 )
 
 file(GLOB SOURCES ${APPLICATION_DIR}/*.cpp)
