@@ -12,15 +12,19 @@ set(GLAD_INCLUDE_DIR D:/Froler/environment/glad/include)
 include_directories(
     ${GLFW_INCLUDE_DIR}
 	${GLAD_INCLUDE_DIR}
+	${CMAKE_SOURCE_DIR}/common
+	${CMAKE_SOURCE_DIR}/include
 )
 
 file(GLOB SOURCES ${APPLICATION_DIR}/*.cpp)
 file(GLOB HEADERS ${APPLICATION_DIR}/*.h)
+file(GLOB SOURCES_COMMON ${CMAKE_SOURCE_DIR}/common/*.cpp)
 
 add_executable(
 	${OUT_NAME}
 	${HEADERS}
 	${SOURCES}
+	${SOURCES_COMMON}
 	${GLAD_INCLUDE_DIR}/../src/glad.c
 	)
 	

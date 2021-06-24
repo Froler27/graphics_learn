@@ -31,6 +31,8 @@ void CExplosionGroup::init()
 	rpSmoke->setWind(v3Wind);
 	rpFire->setWind(v3Wind);
 
+	rpSmoke->getParticleSystem()->getDefaultParticleTemplate().setColorRange(osgParticle::rangev4(osg::Vec4(0.1,0.1,0.1,0.8), osg::Vec4(0.5, 0.5, 0.5, 1)));
+
 	this->addChild(rpExplosion);
 	this->addChild(rpExplosionDebri);
 	this->addChild(rpSmoke);
