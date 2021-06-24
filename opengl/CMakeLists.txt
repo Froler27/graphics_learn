@@ -5,9 +5,9 @@ include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 SET(APPLICATION_DIR ${CMAKE_SOURCE_DIR}/opengl)
 
-set(GLFW_INCLUDE_DIR D:/Froler/glfw-3.3.4/include)
-set(GLFW_LIB D:/Froler/glfw-3.3.4/lib/glfw3.lib)
-set(GLAD_INCLUDE_DIR D:/Froler/glad/include)
+set(GLFW_INCLUDE_DIR D:/Froler/environment/GLFW334_64/include)
+set(GLFW_LIB D:/Froler/environment/GLFW334_64/lib/glfw3.lib)
+set(GLAD_INCLUDE_DIR D:/Froler/environment/glad/include)
 
 include_directories(
     ${GLFW_INCLUDE_DIR}
