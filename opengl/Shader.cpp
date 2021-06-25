@@ -2,16 +2,19 @@
 #include "Shader.h"
 
 
-Shader::Shader(const GLchar* vertexPath, const GLchar* fragmentPath)
+Shader::Shader(const GLchar* vertexPath, const GLchar* fragmentPath, const char* geometryPath)
 {
 	// 1. 从文件路径中获取顶点/片段着色器
 	std::string vertexCode;
 	std::string fragmentCode;
+	std::string geometryCode;
 	std::ifstream vShaderFile;
 	std::ifstream fShaderFile;
+	std::ifstream gShaderFile;
 	// 保证ifstream对象可以抛出异常：
 	vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	try
 	{
 		// 打开文件
@@ -27,6 +30,14 @@ Shader::Shader(const GLchar* vertexPath, const GLchar* fragmentPath)
 		// 转换数据流到string
 		vertexCode = vShaderStream.str();
 		fragmentCode = fShaderStream.str();
+		if (geometryPath != nullptr)
+		{
+			gShaderFile.open(geometryPath);
+			std::stringstream gShaderStream;
+			gShaderStream << gShaderFile.rdbuf();
+			gShaderFile.close();
+			geometryCode = gShaderStream.str();
+		}
 	}
 	catch (std::ifstream::failure e)
 	{
@@ -50,16 +61,30 @@ Shader::Shader(const GLchar* vertexPath, const GLchar* fragmentPath)
 	glCompileShader(fragment);
 	checkCompileErrors(fragment, "FRAGMENT");
 
+	unsigned int geometry;
+	if (geometryPath != nullptr)
+	{
+		const char * gShaderCode = geometryCode.c_str();
+		geometry = glCreateShader(GL_GEOMETRY_SHADER);
+		glShaderSource(geometry, 1, &gShaderCode, NULL);
+		glCompileShader(geometry);
+		checkCompileErrors(geometry, "GEOMETRY");
+	}
+
 	// 着色器程序
 	m_uiID = glCreateProgram();
 	glAttachShader(m_uiID, vertex);
 	glAttachShader(m_uiID, fragment);
+	if (geometryPath != nullptr)
+		glAttachShader(m_uiID, geometry);
 	glLinkProgram(m_uiID);
 	checkCompileErrors(m_uiID, "PROGRAM");
 
 	// 删除着色器，它们已经链接到我们的程序中了，已经不再需要了
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
+	if (geometryPath != nullptr)
+		glDeleteShader(geometry);
 }
 
 void Shader::use()
@@ -80,6 +105,51 @@ void Shader::setInt(const std::string &name, int value) const
 void Shader::setFloat(const std::string &name, float value) const
 {
 	glUniform1f(glGetUniformLocation(m_uiID, name.c_str()), value);
+}
+
+void Shader::setVec2(const std::string &name, const glm::vec2 &value) const
+{
+	glUniform2fv(glGetUniformLocation(m_uiID, name.c_str()), 1, &value[0]);
+}
+
+void Shader::setVec2(const std::string &name, float x, float y) const
+{
+	glUniform2f(glGetUniformLocation(m_uiID, name.c_str()), x, y);
+}
+
+void Shader::setVec3(const std::string &name, const glm::vec3 &value) const
+{
+	glUniform3fv(glGetUniformLocation(m_uiID, name.c_str()), 1, &value[0]);
+}
+
+void Shader::setVec3(const std::string &name, float x, float y, float z) const
+{
+	glUniform3f(glGetUniformLocation(m_uiID, name.c_str()), x, y, z);
+}
+
+void Shader::setVec4(const std::string &name, const glm::vec4 &value) const
+{
+	glUniform4fv(glGetUniformLocation(m_uiID, name.c_str()), 1, &value[0]);
+}
+
+void Shader::setVec4(const std::string &name, float x, float y, float z, float w)
+{
+	glUniform4f(glGetUniformLocation(m_uiID, name.c_str()), x, y, z, w);
+}
+
+void Shader::setMat2(const std::string &name, const glm::mat2 &mat) const
+{
+	glUniformMatrix2fv(glGetUniformLocation(m_uiID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+}
+
+void Shader::setMat3(const std::string &name, const glm::mat3 &mat) const
+{
+	glUniformMatrix3fv(glGetUniformLocation(m_uiID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+}
+
+void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const
+{
+	glUniformMatrix4fv(glGetUniformLocation(m_uiID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
 
 void Shader::checkCompileErrors(unsigned int shader, std::string type)
