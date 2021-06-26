@@ -69,7 +69,7 @@ int main(int argc, char** argv)
 	glEnable(GL_DEPTH_TEST);
 
 	Shader lightingShader((strShaderFilePre + "4.1.lighting_maps.vs.shader").c_str(),
-		(strShaderFilePre + "5.3.light_casters.fs.shader").c_str());
+		(strShaderFilePre + "5.4.light_casters.fs.shader").c_str());
 	Shader lightCubeShader((strShaderFilePre + "4.1.light_cube.vs.shader").c_str(),
 		(strShaderFilePre + "4.1.light_cube.fs.shader").c_str());
 	
@@ -182,6 +182,7 @@ int main(int argc, char** argv)
 		lightingShader.setVec3("light.position", camera.Position);
 		lightingShader.setVec3("light.direction", camera.Front);
 		lightingShader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+		lightingShader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
 		lightingShader.setVec3("viewPos", camera.Position);
 
 		// light properties
@@ -212,12 +213,9 @@ int main(int argc, char** argv)
 		// bind diffuse map
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, diffuseMap);
+		// bind specular map
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, specularMap);
-
-		// render the cube
-		//glBindVertexArray(cubeVAO);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		glBindVertexArray(cubeVAO);
 		for (unsigned int i = 0; i < 10; i++)
@@ -241,8 +239,8 @@ int main(int argc, char** argv)
 		//model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
 		//lightCubeShader.setMat4("model", model);
 
-		glBindVertexArray(lightCubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glBindVertexArray(lightCubeVAO);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		glfwSwapBuffers(window);//交换颜色缓冲,它在这一迭代中被用来绘制，并且将会作为输出显示在屏幕上
 		glfwPollEvents();//检查事件，并调用对应的回调函数
