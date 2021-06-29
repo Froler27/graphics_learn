@@ -10,12 +10,15 @@ set(GLFW_LIB D:/Froler/environment/GLFW334_64/lib/glfw3.lib)
 set(GLAD_INCLUDE_DIR D:/Froler/environment/glad/include)
 set(GLW_INCLUDE_DIR D:/Froler/environment/glm)
 
+set(ASSIMP_DIR D:/Froler/environment/Assimp)
+
 include_directories(
     ${GLFW_INCLUDE_DIR}
 	${GLAD_INCLUDE_DIR}
 	${CMAKE_SOURCE_DIR}/common
 	${CMAKE_SOURCE_DIR}/include
 	${GLW_INCLUDE_DIR}
+	${ASSIMP_DIR}/include
 )
 
 file(GLOB SOURCES ${APPLICATION_DIR}/*.cpp)
@@ -39,4 +42,6 @@ target_link_libraries(
     ${OUT_NAME}
 	${OPENSCENEGRAPH_LIBRARIES}
 	${GLFW_LIB}
+	${ASSIMP_DIR}/lib/assimp-vc140-mt.lib
+	${ASSIMP_DIR}/lib/IrrXML.lib
 	)
