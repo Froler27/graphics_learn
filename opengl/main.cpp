@@ -68,7 +68,7 @@ int main(int argc, char** argv)
 	}
 
 	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_ALWAYS); // always pass the depth test (same effect as glDisable(GL_DEPTH_TEST))
+	//glDepthFunc(GL_ALWAYS); // always pass the depth test (same effect as glDisable(GL_DEPTH_TEST))
 	//glDepthFunc(GL_LESS);// д╛хож╣
 
 	Shader shader((strShaderFilePre+"1.1.depth_testing.vs.shader").c_str(),
