@@ -68,9 +68,11 @@ int main(int argc, char** argv)
 	}
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Shader shader((strShaderFilePre+"3.1.blending.vs.shader").c_str(),
-		(strShaderFilePre+"3.1.blending.fs.shader").c_str());
+		(strShaderFilePre+"3.2.blending.fs.shader").c_str());
 
 	float cubeVertices[] = {
 		// positions          // texture Coords
@@ -177,13 +179,13 @@ int main(int argc, char** argv)
 	// -------------
 	unsigned int cubeTexture = loadTexture((strResourcesFilePre + "resources/textures/marble.jpg").c_str());
 	unsigned int floorTexture = loadTexture((strResourcesFilePre + "resources/textures/metal.png").c_str());
-	unsigned int transparentTexture = loadTexture((strResourcesFilePre + "resources/textures/grass.png").c_str());
+	unsigned int transparentTexture = loadTexture((strResourcesFilePre + "resources/textures/blending_transparent_window.png").c_str());
 	glBindTexture(GL_TEXTURE_2D, transparentTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	// transparent vegetation locations
 	// --------------------------------
-	vector<glm::vec3> vegetation
+	vector<glm::vec3> windows
 	{
 		glm::vec3(-1.5f, 0.0f, -0.48f),
 		glm::vec3(1.5f, 0.0f, 0.51f),
@@ -204,6 +206,13 @@ int main(int argc, char** argv)
 		lastFrame = (float)currentFrame;
 
 		processInput(window);//按esc键退出
+
+		std::map<float, glm::vec3> sorted;
+		for (unsigned int i = 0; i < windows.size(); i++)
+		{
+			float distance = glm::length(camera.Position - windows[i]);
+			sorted[distance] = windows[i];
+		}
 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // don't forget to clear the stencil buffer!
@@ -236,14 +245,21 @@ int main(int argc, char** argv)
 		glBindVertexArray(transparentVAO);
 		glBindTexture(GL_TEXTURE_2D, transparentTexture);
 		
-		for (unsigned int i = 0; i < vegetation.size(); i++)
+		//for (unsigned int i = 0; i < vegetation.size(); i++)
+		//{
+		//	model = glm::mat4(1.0f);
+		//	model = glm::translate(model, vegetation[i]);
+		//	shader.setMat4("model", model);
+		//	glDrawArrays(GL_TRIANGLES, 0, 6);
+		//}
+		for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
 		{
 			model = glm::mat4(1.0f);
-			model = glm::translate(model, vegetation[i]);
+			model = glm::translate(model, it->second);
 			shader.setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
-		
+
 		glfwSwapBuffers(window);//交换颜色缓冲,它在这一迭代中被用来绘制，并且将会作为输出显示在屏幕上
 		glfwPollEvents();//检查事件，并调用对应的回调函数
 	}
