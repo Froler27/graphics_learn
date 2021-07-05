@@ -74,7 +74,11 @@ int main(int argc, char** argv)
 		(strShaderFilePre+"6.2.cubemaps.fs.shader").c_str());
 	Shader skyboxShader((strShaderFilePre + "6.1.skybox.vs.shader").c_str(),
 		(strShaderFilePre + "6.1.skybox.fs.shader").c_str());
-
+	Shader modelShader((strShaderFilePre + "1.model_loading.vs.shader").c_str(),
+		(strShaderFilePre + "1.model_loading.fs.shader").c_str());
+	stbi_set_flip_vertically_on_load(true);
+	Model ourModel((strResourcesFilePre + "resources/model/nanosuit/nanosuit.obj"));
+	stbi_set_flip_vertically_on_load(false);
 	float cubeVertices[] = {
 		// positions          // normals
 		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -330,22 +334,39 @@ int main(int argc, char** argv)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // don't forget to clear the stencil buffer!
 
 		// draw objects
-		shader.use();
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		//shader.use();
+		//glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		//glm::mat4 view = camera.GetViewMatrix();
+		//glm::mat4 model = glm::mat4(1.0f);
+		//shader.setMat4("projection", projection);
+		//shader.setMat4("view", view);
+		//shader.setVec3("cameraPos", camera.Position);
+		//// cubes
+		//glBindVertexArray(cubeVAO);
+		//glActiveTexture(GL_TEXTURE0);
+		////glBindTexture(GL_TEXTURE_2D, cubeTexture);
+		//glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		////model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
+		//shader.setMat4("model", model);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glBindVertexArray(0);
+
+		modelShader.use();
+
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom),
+			(float)SCR_WIDTH / (float)SCR_HEIGHT,
+			0.1f, 100.0f);
 		glm::mat4 view = camera.GetViewMatrix();
+		modelShader.setMat4("projection", projection);
+		modelShader.setMat4("view", view);
+		modelShader.setVec3("cameraPos", camera.Position);
+
+		// world transformation
 		glm::mat4 model = glm::mat4(1.0f);
-		shader.setMat4("projection", projection);
-		shader.setMat4("view", view);
-		shader.setVec3("cameraPos", camera.Position);
-		// cubes
-		glBindVertexArray(cubeVAO);
-		glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, cubeTexture);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-		//model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
-		shader.setMat4("model", model);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+		modelShader.setMat4("model", model);
+		ourModel.Draw(modelShader);   
 		
 		// draw skybox as last
 		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
